@@ -736,14 +736,15 @@ export default function Portfolio({ data, onOpenAdmin }) {
           <p style={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8, marginBottom: 48, marginTop: -28 }}>{contact.subheading}</p>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <input className="contact-input" placeholder="Your Name" />
-            <input className="contact-input" placeholder="Email Address" type="email" />
-            <textarea className="contact-input" placeholder="Your Message" rows={5} style={{ resize: "vertical" }} />
+          <form name="contact" method="POST" data-netlify="true" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <input type="hidden" name="form-name" value="contact" />
+            <input className="contact-input" name="name" placeholder="Your Name" required />
+            <input className="contact-input" name="email" placeholder="Email Address" type="email" required />
+            <textarea className="contact-input" name="message" placeholder="Your Message" rows={5} style={{ resize: "vertical" }} required />
             <div>
-              <button className="btn-send">Send Message →</button>
+              <button type="submit" className="btn-send">Send Message →</button>
             </div>
-          </div>
+          </form>
           <div style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", gap: 12, flexWrap: "wrap" }}>
             {meta.email && <a href={`mailto:${meta.email}`} className="social-link">✉ {meta.email}</a>}
             {meta.github && <a href={meta.github} target="_blank" rel="noopener noreferrer" className="social-link">⌥ GitHub</a>}
