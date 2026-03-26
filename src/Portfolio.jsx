@@ -736,7 +736,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
           <p style={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8, marginBottom: 48, marginTop: -28 }}>{contact.subheading}</p>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <form name="contact" method="POST" data-netlify="true" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <form name="contact" method="POST" data-netlify="true" action= "/" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <input type="hidden" name="form-name" value="contact" />
             <input className="contact-input" name="name" placeholder="Your Name" required />
             <input className="contact-input" name="email" placeholder="Email Address" type="email" required />
