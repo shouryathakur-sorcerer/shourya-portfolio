@@ -5,7 +5,7 @@ export const DEFAULT_DATA = {
     "role": "Computer Science Student",
     "email": "shourya.thakur.2025@gmail.com",
     "github": "https://github.com/shouryathakur-sorcerer",
-    "linkedin": "www.linkedin.com/in/shourya-thakur-5a64b22ba",
+    "linkedin": "https://www.linkedin.com/in/shourya-thakur-5a64b22ba/",
     "heroLine1": "Cybersecurity",
     "heroLine2": "Systems",
     "heroLine3": "Networking",
