@@ -736,15 +736,15 @@ export default function Portfolio({ data, onOpenAdmin }) {
           <p style={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8, marginBottom: 48, marginTop: -28 }}>{contact.subheading}</p>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <form name="contact" method="POST" data-netlify="true" action= "/" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <input type="hidden" name="form-name" value="contact" />
-            <input className="contact-input" name="name" placeholder="Your Name" required />
-            <input className="contact-input" name="email" placeholder="Email Address" type="email" required />
-            <textarea className="contact-input" name="message" placeholder="Your Message" rows={5} style={{ resize: "vertical" }} required />
-            <div>
-              <button type="submit" className="btn-send">Send Message →</button>
-            </div>
-          </form>
+          <form action="https://api.web3forms.com/submit" method="POST" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+  <input type="hidden" name="access_key" value="80789f0f-3e63-4bc7-b160-8667718b33b1" />
+  <input className="contact-input" name="name" placeholder="Your Name" required />
+  <input className="contact-input" name="email" placeholder="Email Address" type="email" required />
+  <textarea className="contact-input" name="message" placeholder="Your Message" rows={5} style={{ resize: "vertical" }} required />
+  <div>
+    <button type="submit" className="btn-send">Send Message →</button>
+  </div>
+</form>
           <div style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", gap: 12, flexWrap: "wrap" }}>
             {meta.email && <a href={`mailto:${meta.email}`} className="social-link">✉ {meta.email}</a>}
             {meta.github && <a href={meta.github} target="_blank" rel="noopener noreferrer" className="social-link">⌥ GitHub</a>}
