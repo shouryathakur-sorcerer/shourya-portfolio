@@ -135,6 +135,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
   const [active, setActive] = useState("Home");
   const [scrolled, setScrolled] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [menuOpen, setMenuOpen] = useState(false);
   const { meta, about, skills, projects, research, contact } = data;
 
   useEffect(() => {
@@ -151,6 +152,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
 
   const scrollTo = (id) => {
     setActive(id);
+    setMenuOpen(false);
     const el = document.getElementById(id.toLowerCase());
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
@@ -354,6 +356,97 @@ export default function Portfolio({ data, onOpenAdmin }) {
         .social-link:hover { color: #60a5fa; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.05); }
 
         .divider { height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 30%, rgba(99,102,241,0.15) 50%, rgba(255,255,255,0.06) 70%, transparent 100%); margin: 0 32px; }
+
+        /* --- MOBILE NAV --- */
+        .hamburger {
+          display: none; flex-direction: column; gap: 5px;
+          cursor: pointer; padding: 8px; background: none; border: none;
+        }
+        .hamburger span {
+          display: block; width: 22px; height: 2px;
+          background: #94a3b8; border-radius: 2px;
+          transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .mobile-menu {
+          display: none; position: fixed; top: 72px; left: 0; right: 0; z-index: 99;
+          background: rgba(5,8,16,0.97); backdrop-filter: blur(24px);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          padding: 24px 24px 32px; flex-direction: column; gap: 4px;
+        }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu .nav-item {
+          padding: 14px 8px; font-size: 0.8rem;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .mobile-menu .nav-item:last-child { border-bottom: none; }
+
+        @media (max-width: 768px) {
+          .hamburger { display: flex; }
+          .desktop-nav { display: none !important; }
+
+          /* Hero */
+          .hero-inner {
+            flex-direction: column !important;
+            padding: 100px 24px 60px !important;
+            gap: 48px !important;
+            align-items: flex-start !important;
+          }
+          .hero-inner h1 { font-size: clamp(2.4rem, 11vw, 3.5rem) !important; }
+          .profile-wrap { width: 220px !important; height: 220px !important; align-self: center; }
+
+          /* Sections */
+          .section-inner {
+            padding: 72px 24px !important;
+          }
+
+          /* About grid → single column */
+          .about-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          /* Focus cards → 2 cols on mobile is fine, keep it */
+
+          /* Skills grid → single column */
+          .skills-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
+          }
+
+          /* Projects grid → single column */
+          .projects-grid {
+            grid-template-columns: 1fr !important;
+          }
+
+          /* Research card → stack vertically */
+          .research-card {
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+
+          /* Footer */
+          .footer-inner {
+            flex-direction: column !important;
+            gap: 8px !important;
+            text-align: center;
+          }
+
+          /* Admin FAB */
+          .admin-fab {
+            bottom: 20px !important; right: 16px !important;
+            padding: 8px 14px !important;
+          }
+
+          /* Nav inner */
+          .nav-inner {
+            padding: 0 20px !important;
+          }
+
+          .divider { margin: 0 16px; }
+        }
       `}</style>
 
       {/* Cursor glow effect */}
@@ -376,13 +469,13 @@ export default function Portfolio({ data, onOpenAdmin }) {
         borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent",
         transition: "all 0.5s cubic-bezier(0.16,1,0.3,1)",
       }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", padding: "0 48px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="nav-inner" style={{ maxWidth: 1140, margin: "0 auto", padding: "0 48px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div onClick={() => scrollTo("Home")} style={{ cursor: "pointer" }}>
             <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "1.2rem", fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.02em" }}>
               {meta.name.split(" ")[0]}<span style={{ color: "#3b82f6" }}>.</span>
             </span>
           </div>
-          <div style={{ display: "flex", gap: 36 }}>
+          <div className="desktop-nav" style={{ display: "flex", gap: 36 }}>
             {NAV_LINKS.map((l) => (
               <span key={l} className={`nav-item${active === l ? " active" : ""}`} onClick={() => scrollTo(l)}
                 style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>
@@ -390,8 +483,22 @@ export default function Portfolio({ data, onOpenAdmin }) {
               </span>
             ))}
           </div>
+          {/* Hamburger */}
+          <button className={`hamburger${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
+            <span /><span /><span />
+          </button>
         </div>
       </nav>
+
+      {/* Mobile menu */}
+      <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
+        {NAV_LINKS.map((l) => (
+          <span key={l} className={`nav-item${active === l ? " active" : ""}`} onClick={() => scrollTo(l)}
+            style={{ fontFamily: "'Space Mono', monospace", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+            {l}
+          </span>
+        ))}
+      </div>
 
       {/* HERO */}
       <section id="home" style={{ minHeight: "100vh", display: "flex", alignItems: "center", position: "relative", overflow: "hidden" }}>
@@ -401,7 +508,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
         <div style={{ position: "absolute", top: "20%", right: "5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 65%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "10%", left: "-10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 65%)", pointerEvents: "none" }} />
 
-        <div style={{ maxWidth: 1140, margin: "0 auto", padding: "120px 48px 80px", display: "flex", alignItems: "center", gap: 80, position: "relative", zIndex: 1, width: "100%" }}>
+        <div className="hero-inner" style={{ maxWidth: 1140, margin: "0 auto", padding: "120px 48px 80px", display: "flex", alignItems: "center", gap: 80, position: "relative", zIndex: 1, width: "100%" }}>
           <div style={{ flex: 1 }}>
             <div style={{ marginBottom: 24, opacity: 0, animation: "heroReveal 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s forwards" }}>
               <CyberBadge>{meta.role}</CyberBadge>
@@ -447,7 +554,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
           }}>
             <div style={{ position: "relative" }}>
               {/* Outer ring with glow */}
-              <div style={{
+              <div className="profile-wrap" style={{
                 width: 300, height: 300, borderRadius: "50%",
                 background: "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3), rgba(6,182,212,0.3))",
                 padding: 3, animation: "pulse-ring 3s ease-in-out infinite",
@@ -507,12 +614,12 @@ export default function Portfolio({ data, onOpenAdmin }) {
       <div className="divider" />
 
       {/* ABOUT */}
-      <section id="about" style={{ padding: "120px 0", maxWidth: 1140, margin: "0 auto", padding: "120px 48px" }}>
+      <section id="about" style={{ padding: "120px 0", maxWidth: 1140, margin: "0 auto", padding: "120px 48px" }} className="section-inner">
         <FadeIn>
           <p className="section-label">Who I Am</p>
           <h2 className="section-title">About Me</h2>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 64 }}>
+        <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 64 }}>
           <FadeIn delay={0.1} direction="left">
             <p style={{ color: "#94a3b8", fontSize: "1.05rem", lineHeight: 1.9, marginBottom: 24 }}>{about.para1}</p>
             <p style={{ color: "#64748b", fontSize: "0.95rem", lineHeight: 1.9 }}>{about.para2}</p>
@@ -534,12 +641,12 @@ export default function Portfolio({ data, onOpenAdmin }) {
       <div className="divider" />
 
       {/* SKILLS */}
-      <section id="skills" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }}>
+      <section id="skills" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }} className="section-inner">
         <FadeIn>
           <p className="section-label">Expertise</p>
           <h2 className="section-title">Technical Skills</h2>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 64px" }}>
+        <div className="skills-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 64px" }}>
           {skills.map((s, i) => <SkillBar key={s.name + i} skill={s} delay={i * 0.06} />)}
         </div>
       </section>
@@ -547,12 +654,12 @@ export default function Portfolio({ data, onOpenAdmin }) {
       <div className="divider" />
 
       {/* PROJECTS */}
-      <section id="projects" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }}>
+      <section id="projects" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }} className="section-inner">
         <FadeIn>
           <p className="section-label">Portfolio</p>
           <h2 className="section-title">Projects</h2>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div className="projects-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
           {projects.map((p, i) => (
             <FadeIn key={p.id} delay={i * 0.07} direction="scale">
               <div className="project-card" style={{
@@ -585,7 +692,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
       <div className="divider" />
 
       {/* RESEARCH */}
-      <section id="research" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }}>
+      <section id="research" style={{ padding: "120px 48px", maxWidth: 1140, margin: "0 auto" }} className="section-inner">
         <FadeIn>
           <p className="section-label">Academic Work</p>
           <h2 className="section-title">Research</h2>
@@ -622,7 +729,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
       <div className="divider" />
 
       {/* CONTACT */}
-      <section id="contact" style={{ padding: "120px 48px", maxWidth: 680, margin: "0 auto" }}>
+      <section id="contact" style={{ padding: "120px 48px", maxWidth: 680, margin: "0 auto" }} className="section-inner">
         <FadeIn>
           <p className="section-label">Get In Touch</p>
           <h2 className="section-title">{contact.heading}</h2>
@@ -647,7 +754,7 @@ export default function Portfolio({ data, onOpenAdmin }) {
 
       {/* FOOTER */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.04)", padding: "32px 48px" }}>
-        <div style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="footer-inner" style={{ maxWidth: 1140, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontFamily: "'Space Mono', monospace", color: "#1e293b", fontSize: "0.72rem", letterSpacing: "0.1em" }}>
             © {meta.footerYear} {meta.name}
           </span>
