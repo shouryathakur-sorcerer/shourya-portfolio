@@ -38,8 +38,8 @@ function LoginScreen({ onLogin }) {
     if (pw === ADMIN_PASSWORD) { onLogin(); } else { setErr(true); setTimeout(() => setErr(false), 1800); }
   };
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#070c14" }}>
-      <div style={{ background: "#0b1120", border: "1px solid #1a2a3e", borderRadius: 16, padding: "48px 40px", width: 360, textAlign: "center" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#070c14", padding: "20px" }}>
+      <div style={{ background: "#0b1120", border: "1px solid #1a2a3e", borderRadius: 16, padding: "48px 32px", width: "100%", maxWidth: 360, textAlign: "center" }}>
         <div style={{ fontSize: "2.5rem", marginBottom: 16 }}>⚙️</div>
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", color: "#e8e4d9", marginBottom: 6 }}>Admin Console</h2>
         <p style={{ fontSize: "0.82rem", color: "#3a5070", marginBottom: 28 }}>Enter password to continue</p>
@@ -265,6 +265,7 @@ export default function AdminConsole({ data, setData, onBack }) {
   const [authed, setAuthed] = useState(false);
   const [section, setSection] = useState("Meta");
   const [saved, setSaved] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
 
@@ -299,23 +300,54 @@ export default function AdminConsole({ data, setData, onBack }) {
         input:focus, textarea:focus { border-color: #4a9eff !important; }
         input[type=range] { cursor: pointer; }
         * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #070c14; } ::-webkit-scrollbar-thumb { background: #1a2e46; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #070c14; }
+        ::-webkit-scrollbar-thumb { background: #1a2e46; border-radius: 3px; }
+
+        .admin-sidebar { width: 220px; background: #0b1120; border-right: 1px solid #1a2a3e; display: flex; flex-direction: column; padding: 24px 0; gap: 4px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 10; overflow-y: auto; }
+        .admin-main { margin-left: 220px; padding: 40px 48px; max-width: 900px; }
+        .admin-mobile-header { display: none; }
+        .admin-mobile-nav { display: none; }
+        .admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+
+        @media (max-width: 768px) {
+          .admin-sidebar { display: none; }
+          .admin-main { margin-left: 0; padding: 16px; max-width: 100%; padding-top: 70px; }
+          .admin-mobile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+            background: #0b1120; border-bottom: 1px solid #1a2a3e;
+            padding: 0 16px; height: 56px;
+          }
+          .admin-mobile-nav {
+            display: flex; overflow-x: auto; gap: 0;
+            background: #0b1120; border-bottom: 1px solid #1a2a3e;
+            position: fixed; top: 56px; left: 0; right: 0; z-index: 19;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .admin-mobile-nav::-webkit-scrollbar { display: none; }
+          .admin-main { padding-top: 112px; }
+          .admin-row { grid-template-columns: 1fr; gap: 0; }
+        }
+
+        @media (max-width: 480px) {
+          .admin-main { padding: 112px 12px 20px; }
+        }
       `}</style>
 
-      {/* Sidebar */}
-      <div style={S.sidebar}>
+      {/* Desktop Sidebar */}
+      <div className="admin-sidebar">
         <div style={{ padding: "0 20px 20px", borderBottom: "1px solid #1a2a3e" }}>
           <div style={{ fontSize: "1.1rem", fontFamily: "'Playfair Display', serif", color: "#e8e4d9", fontWeight: 700 }}>⚙ Admin</div>
           <div style={{ fontSize: "0.72rem", color: "#3a5070", marginTop: 4 }}>Portfolio Console</div>
         </div>
-
         <div style={{ marginTop: 8 }}>
           <div style={S.sectionTitle}>Sections</div>
           {SECTIONS.map(s => (
             <button key={s} style={S.navBtn(section === s)} onClick={() => setSection(s)}>{s}</button>
           ))}
         </div>
-
         <div style={{ marginTop: "auto", padding: "20px", borderTop: "1px solid #1a2a3e", display: "flex", flexDirection: "column", gap: 8 }}>
           <button style={{ ...S.btnPrimary, width: "100%", padding: "10px" }} onClick={handleSave}>💾 Save Changes</button>
           <button style={{ ...S.btnGhost, width: "100%", padding: "10px", textAlign: "center" }} onClick={onBack}>← View Site</button>
@@ -323,9 +355,31 @@ export default function AdminConsole({ data, setData, onBack }) {
         </div>
       </div>
 
+      {/* Mobile Header */}
+      <div className="admin-mobile-header">
+        <div style={{ fontFamily: "'Playfair Display', serif", color: "#e8e4d9", fontWeight: 700, fontSize: "1rem" }}>⚙ Admin — {section}</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button style={{ ...S.btnGhost, fontSize: "0.75rem", padding: "6px 12px" }} onClick={onBack}>← Site</button>
+          <button style={{ ...S.btnPrimary, fontSize: "0.75rem", padding: "6px 12px" }} onClick={handleSave}>Save</button>
+        </div>
+      </div>
+
+      {/* Mobile Section Tabs */}
+      <div className="admin-mobile-nav">
+        {SECTIONS.map(s => (
+          <button key={s} onClick={() => setSection(s)} style={{
+            background: "none", border: "none", borderBottom: `2px solid ${section === s ? "#4a9eff" : "transparent"}`,
+            color: section === s ? "#e8e4d9" : "#5a7890", cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", padding: "14px 16px",
+            whiteSpace: "nowrap", transition: "all 0.2s", flexShrink: 0,
+          }}>{s}</button>
+        ))}
+      </div>
+
       {/* Main area */}
-      <div style={S.main}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36, paddingBottom: 20, borderBottom: "1px solid #1a2a3e" }}>
+      <div className="admin-main">
+        {/* Desktop header bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36, paddingBottom: 20, borderBottom: "1px solid #1a2a3e" }} className="desktop-section-header">
           <div>
             <p style={{ fontSize: "0.72rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#3a5070" }}>Editing</p>
             <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", color: "#e8e4d9", fontWeight: 700 }}>{section}</h1>
@@ -336,12 +390,16 @@ export default function AdminConsole({ data, setData, onBack }) {
           </div>
         </div>
 
+        {saved && (
+          <div style={{ ...S.saved, marginBottom: 16, display: "block" }}>✓ Saved to browser</div>
+        )}
+
         {renderSection()}
 
         <div style={{ marginTop: 40, padding: "20px 24px", background: "#0a1020", border: "1px solid #1a2a3e", borderRadius: 10 }}>
           <p style={{ fontSize: "0.78rem", color: "#3a5070", lineHeight: 1.8 }}>
-            <strong style={{ color: "#4a6080" }}>💡 How it works:</strong> Changes save automatically to your browser's localStorage and reflect instantly on the site. 
-            To make edits permanent for deployment, click <strong style={{ color: "#4a9eff" }}>Export JSON</strong> and paste the output into <code style={{ color: "#7ab3e0", background: "#0d1a2a", padding: "1px 6px", borderRadius: 4 }}>src/data.js</code> as the DEFAULT_DATA, then push to Netlify.
+            <strong style={{ color: "#4a6080" }}>💡 How it works:</strong> Changes save to your browser's localStorage and reflect instantly on the site.
+            To make edits permanent, click <strong style={{ color: "#4a9eff" }}>Export JSON</strong> and paste into <code style={{ color: "#7ab3e0", background: "#0d1a2a", padding: "1px 6px", borderRadius: 4 }}>src/data.js</code>, then push to Netlify.
           </p>
           <button style={{ ...S.btnGhost, marginTop: 12, fontSize: "0.8rem" }} onClick={() => {
             const json = JSON.stringify(data, null, 2);
